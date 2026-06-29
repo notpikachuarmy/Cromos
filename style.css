@@ -1109,3 +1109,20 @@ button:disabled,
     }
 }
 
+.pack-amount-panel {
+    max-width: 520px;
+    margin: 0 auto 22px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+#pack-open-amount {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-weight: 800;
+    background: white;
+}
