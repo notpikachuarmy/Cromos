@@ -491,8 +491,11 @@ function prepararClickPrincipal() {
 
 function ganarMonedas(cantidad) {
     const value = Math.max(0, Number(cantidad) || 0);
+
     gameState.coins += value;
     gameState.stats.coinsEarned += value;
+
+    actualizarInterfazEconomia();
 }
 
 function gastarMonedas(cantidad) {
@@ -509,7 +512,32 @@ function gastarMonedas(cantidad) {
         window.Missions.onProgress("spendCoins", value);
     }
 
+    actualizarInterfazEconomia();
+
     return true;
+}
+
+function actualizarInterfazEconomia() {
+
+    recalcularDerivados();
+
+    renderHeader();
+
+    if (window.Shop?.render) {
+        window.Shop.render();
+    }
+
+    if (window.Upgrades?.render) {
+        window.Upgrades.render();
+    }
+
+    if (window.Missions?.renderPreview) {
+        window.Missions.renderPreview();
+    }
+
+    if (window.Statistics?.renderIfVisible) {
+        window.Statistics.renderIfVisible();
+    }
 }
 
 function iniciarLoops() {
