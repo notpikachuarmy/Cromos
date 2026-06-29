@@ -229,8 +229,3 @@ window.Encyclopedia = (() => {
         ensureEntry
     };
 })();
-"""
-
-path = Path("/mnt/data/encyclopedia.js")
-path.write_text(encyclopedia_js, encoding="utf-8")
-print(f"Archivo creado: {path}")
