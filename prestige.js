@@ -179,8 +179,3 @@ window.Prestige = (() => {
         removeAlbumCardsFromInventory
     };
 })();
-"""
-
-path = Path("/mnt/data/prestige.js")
-path.write_text(prestige_js, encoding="utf-8")
-print(f"Archivo creado: {path}")
