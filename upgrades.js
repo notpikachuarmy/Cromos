@@ -20,6 +20,16 @@ window.Upgrades = (() => {
             category: "Click"
         },
         {
+            id: "passive_mining",
+            type: "level",
+            title: "Minería pasiva básica",
+            description: level => `Genera +1 moneda por segundo por nivel. Nivel actual: ${level}.`,
+            maxLevel: 1000,
+            baseCost: 10,
+            costMultiplier: 1.08,
+            category: "Pasiva"
+         },
+        {
             id: "passive_efficiency",
             type: "level",
             title: "Minería pasiva eficiente",
@@ -343,7 +353,9 @@ window.Upgrades = (() => {
         const level = getLevel("click_power");
         return 1 + level * 0.25;
     }
-
+    function getPassiveFlatBonus() {
+    return getLevel("passive_mining");
+   }
     function getPassiveBonusMultiplier() {
         const passiveLevel = getLevel("passive_efficiency");
         let multiplier = 1 + passiveLevel * 0.05;
@@ -426,6 +438,7 @@ window.Upgrades = (() => {
         hasAdvancedEncyclopedia,
 
         getClickBonusMultiplier,
+        getPassiveFlatBonus,
         getPassiveBonusMultiplier,
         getFragmentMultiplier,
         getFlatFragmentBonus,
