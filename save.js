@@ -157,8 +157,3 @@ window.SaveSystem = (() => {
         SAVE_KEY_OLD
     };
 })();
-"""
-
-path = Path("/mnt/data/save.js")
-path.write_text(save_js, encoding="utf-8")
-print(f"Archivo creado: {path}")
