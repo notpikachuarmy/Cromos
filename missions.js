@@ -346,8 +346,4 @@ window.Missions = (() => {
         getProgressPercent
     };
 })();
-"""
 
-path = Path("/mnt/data/missions.js")
-path.write_text(missions_js, encoding="utf-8")
-print(f"Archivo creado: {path}")
