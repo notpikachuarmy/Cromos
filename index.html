@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tototo Clicker 2.0</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <noscript>
+        <div class="noscript-warning">
+            Este juego necesita JavaScript activado para funcionar.
+        </div>
+    </noscript>
+
+    <div id="app" class="app-shell">
+        <header class="top-header">
+            <div class="brand-block">
+                <h1>Tototo Clicker 2.0 🪙</h1>
+                <p>Colecciona cromos, completa álbumes y prestigia tus colecciones.</p>
+            </div>
+
+            <div class="resource-panel" aria-label="Recursos principales">
+                <div class="resource-card">
+                    <span class="resource-label">Monedas</span>
+                    <strong id="coin-count">0</strong>
+                </div>
+                <div class="resource-card">
+                    <span class="resource-label">Pasiva total</span>
+                    <strong><span id="cps-count">0</span>/s</strong>
+                </div>
+                <div class="resource-card">
+                    <span class="resource-label">Prestigios</span>
+                    <strong id="total-prestige-count">0</strong>
+                </div>
+            </div>
+        </header>
+
+        <nav class="tab-nav" aria-label="Navegación principal">
+            <button class="tab-button active" data-tab="inicio">🏠 Inicio</button>
+            <button class="tab-button" data-tab="tienda">🛒 Tienda</button>
+            <button class="tab-button" data-tab="albumes">📚 Álbumes</button>
+            <button class="tab-button" data-tab="laboratorio">🧪 Laboratorio</button>
+            <button class="tab-button" data-tab="mochila">🎒 Mochila</button>
+            <button class="tab-button" data-tab="logros">🏆 Logros</button>
+            <button class="tab-button" data-tab="misiones">🎯 Misiones</button>
+            <button class="tab-button" data-tab="estadisticas">📊 Estadísticas</button>
+        </nav>
+
+        <main class="main-layout">
+            <section id="tab-inicio" class="tab-section active">
+                <div class="section-heading">
+                    <h2>Inicio</h2>
+                    <p>Haz click, gana monedas y usa la producción pasiva de tus álbumes prestigiosos.</p>
+                </div>
+
+                <div class="home-grid">
+                    <section class="panel click-panel">
+                        <h3>Minería manual</h3>
+                        <button id="main-click-button" class="coin-button" type="button" aria-label="Ganar monedas">🪙</button>
+                        <p class="click-hint">Cada click genera <strong id="click-value-label">1</strong> monedas.</p>
+                        <div id="floating-click-container" class="floating-click-container" aria-hidden="true"></div>
+                    </section>
+
+                    <section class="panel mission-preview-panel">
+                        <h3>Misión actual</h3>
+                        <div id="current-mission-preview" class="empty-state">Cargando misión...</div>
+                        <button class="secondary-button" data-tab-target="misiones" type="button">Ver misiones</button>
+                    </section>
+
+                    <section class="panel progress-preview-panel">
+                        <h3>Resumen de colección</h3>
+                        <div class="progress-line">
+                            <span>Cromos únicos</span>
+                            <strong id="home-unique-cards">0 / 0</strong>
+                        </div>
+                        <div class="progress-line">
+                            <span>Álbumes completados</span>
+                            <strong id="home-completed-albums">0</strong>
+                        </div>
+                        <div class="progress-line">
+                            <span>Logros desbloqueados</span>
+                            <strong id="home-achievements">0</strong>
+                        </div>
+                        <button class="secondary-button" data-tab-target="albumes" type="button">Ver álbumes</button>
+                    </section>
+                </div>
+            </section>
+
+            <section id="tab-tienda" class="tab-section">
+                <div class="section-heading">
+                    <h2>Tienda de sobres</h2>
+                    <p>Compra sobres por monedas o canjéalos con fragmentos.</p>
+                </div>
+                <div id="pack-list" class="card-grid shop-grid">
+                    <div class="empty-state">Cargando sobres...</div>
+                </div>
+            </section>
+
+            <section id="tab-albumes" class="tab-section">
+                <div class="section-heading">
+                    <h2>Álbumes y prestigio</h2>
+                    <p>Completa álbumes para desbloquear producción pasiva. Prestigia un álbum para vaciar solo sus cromos y volver a potenciarlo.</p>
+                </div>
+
+                <div id="global-stats-panel" class="global-stats panel">
+                    <div id="global-total-percent">Cargando progreso...</div>
+                    <div id="global-rareza-counts"></div>
+                    <div id="global-albums-completed"></div>
+                </div>
+
+                <div id="album-container" class="card-grid album-grid-list">
+                    <div class="empty-state">Cargando álbumes...</div>
+                </div>
+            </section>
+
+            <section id="tab-laboratorio" class="tab-section">
+                <div class="section-heading">
+                    <h2>Laboratorio</h2>
+                    <p>Compra mejoras permanentes y mejoras de varios niveles para acelerar tu progreso.</p>
+                </div>
+
+                <div class="upgrade-summary panel">
+                    <div class="progress-line">
+                        <span>Poder de click</span>
+                        <strong id="lab-click-power">1</strong>
+                    </div>
+                    <div class="progress-line">
+                        <span>Multiplicador pasivo</span>
+                        <strong id="lab-passive-multiplier">x1.00</strong>
+                    </div>
+                    <div class="progress-line">
+                        <span>Bonus fragmentos</span>
+                        <strong id="lab-fragment-bonus">+0%</strong>
+                    </div>
+                </div>
+
+                <div id="upgrades-container" class="card-grid upgrade-grid">
+                    <div class="empty-state">Cargando mejoras...</div>
+                </div>
+            </section>
+
+            <section id="tab-mochila" class="tab-section">
+                <div class="section-heading">
+                    <h2>Mochila de fragmentos</h2>
+                    <p>Los cromos repetidos se convierten en fragmentos. Cada 50 fragmentos de una categoría pueden canjearse por un sobre.</p>
+                </div>
+
+                <div id="fragment-inventory" class="card-grid fragment-grid">
+                    <div class="empty-state">Mochila vacía.</div>
+                </div>
+            </section>
+
+            <section id="tab-logros" class="tab-section">
+                <div class="section-heading">
+                    <h2>Logros</h2>
+                    <p>Desbloquea logros y reclama recompensas en monedas.</p>
+                </div>
+
+                <div class="filter-bar">
+                    <button class="filter-button active" data-achievement-filter="todos" type="button">Todos</button>
+                    <button class="filter-button" data-achievement-filter="coleccion" type="button">Colección</button>
+                    <button class="filter-button" data-achievement-filter="rareza" type="button">Rarezas</button>
+                    <button class="filter-button" data-achievement-filter="sobres" type="button">Sobres</button>
+                    <button class="filter-button" data-achievement-filter="clicks" type="button">Clicks</button>
+                    <button class="filter-button" data-achievement-filter="album" type="button">Álbumes</button>
+                </div>
+
+                <div id="achievements-container" class="card-grid achievement-grid">
+                    <div class="empty-state">Cargando logros...</div>
+                </div>
+            </section>
+
+            <section id="tab-misiones" class="tab-section">
+                <div class="section-heading">
+                    <h2>Misiones generales</h2>
+                    <p>Completa una misión aleatoria y recibe una recompensa. Al reclamarla aparecerá otra misión nueva.</p>
+                </div>
+
+                <div id="mission-container" class="mission-container panel">
+                    <div class="empty-state">Cargando misión...</div>
+                </div>
+
+                <div class="mission-info panel">
+                    <h3>Tipos de misión</h3>
+                    <ul class="clean-list">
+                        <li>Haz una cantidad de clicks.</li>
+                        <li>Abre sobres.</li>
+                        <li>Consigue cromos nuevos.</li>
+                        <li>Obtén fragmentos.</li>
+                        <li>Gasta monedas.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="tab-estadisticas" class="tab-section">
+                <div class="section-heading">
+                    <h2>Estadísticas</h2>
+                    <p>Consulta todo tu progreso acumulado.</p>
+                </div>
+
+                <div class="stats-layout">
+                    <section class="panel">
+                        <h3>General</h3>
+                        <div id="stats-general" class="stats-list"></div>
+                    </section>
+
+                    <section class="panel">
+                        <h3>Sobres abiertos</h3>
+                        <div id="stats-packs" class="stats-list"></div>
+                    </section>
+
+                    <section class="panel">
+                        <h3>Rarezas obtenidas</h3>
+                        <div id="stats-rarities" class="stats-list"></div>
+                    </section>
+
+                    <section class="panel">
+                        <h3>Colección</h3>
+                        <div id="stats-collection" class="stats-list"></div>
+                    </section>
+                </div>
+            </section>
+        </main>
+
+        <section id="system-menu" class="system-menu">
+            <button id="export-save-button" type="button">💾 Exportar partida</button>
+            <button id="import-save-button" type="button">📂 Importar partida</button>
+            <button id="reset-save-button" type="button">🗑️ Reiniciar partida</button>
+            <input type="file" id="import-input" accept="application/json,.json" hidden>
+        </section>
+    </div>
+
+    <div id="album-modal" class="modal" aria-hidden="true">
+        <div class="modal-content modal-wide" role="dialog" aria-modal="true" aria-labelledby="album-modal-title">
+            <button class="close-btn" data-close-modal type="button" aria-label="Cerrar">&times;</button>
+            <div class="modal-header">
+                <div>
+                    <h2 id="album-modal-title">Álbum</h2>
+                    <p id="album-modal-subtitle"></p>
+                </div>
+                <div class="modal-actions">
+                    <button id="prestige-album-button" class="danger-button" type="button">Prestigiar álbum</button>
+                </div>
+            </div>
+            <div id="album-modal-stats" class="modal-stats"></div>
+            <div id="album-modal-grid" class="album-card-grid"></div>
+        </div>
+    </div>
+
+    <div id="card-modal" class="modal" aria-hidden="true">
+        <div class="modal-content card-detail-content" role="dialog" aria-modal="true" aria-labelledby="card-modal-title">
+            <button class="close-btn" data-close-modal type="button" aria-label="Cerrar">&times;</button>
+            <div id="card-detail" class="card-detail">
+                <div class="empty-state">Selecciona un cromo para verlo en la enciclopedia.</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="pack-result-modal" class="modal" aria-hidden="true">
+        <div class="modal-content pack-result-content" role="dialog" aria-modal="true" aria-labelledby="pack-result-title">
+            <button class="close-btn" data-close-modal type="button" aria-label="Cerrar">&times;</button>
+            <h2 id="pack-result-title">Resultado del sobre</h2>
+            <div id="pack-result-body" class="pack-result-body"></div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="save.js"></script>
+    <script src="sounds.js"></script>
+    <script src="statistics.js"></script>
+    <script src="achievements.js"></script>
+    <script src="missions.js"></script>
+    <script src="upgrades.js"></script>
+    <script src="encyclopedia.js"></script>
+    <script src="prestige.js"></script>
+    <script src="albums.js"></script>
+    <script src="shop.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
