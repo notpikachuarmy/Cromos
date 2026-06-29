@@ -1,5 +1,5 @@
 /* =========================================================
-   TOTOTO CLICKER 2.0 - ACHIEVEMENTS.JS
+TOTOTO CLICKER 2.0 - ACHIEVEMENTS.JS
    Logros con recompensas en monedas.
    ========================================================= */
 
@@ -191,8 +191,3 @@ window.Achievements = (() => {
         render
     };
 })();
-"""
-
-path = Path("/mnt/data/achievements.js")
-path.write_text(achievements_js, encoding="utf-8")
-print(f"Archivo creado: {path}")
