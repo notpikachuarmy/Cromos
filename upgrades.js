@@ -433,8 +433,3 @@ window.Upgrades = (() => {
         applyRarityBonuses
     };
 })();
-"""
-
-path = Path("/mnt/data/upgrades.js")
-path.write_text(upgrades_js, encoding="utf-8")
-print(f"Archivo creado: {path}")
