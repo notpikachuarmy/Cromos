@@ -193,8 +193,3 @@ window.Sounds = (() => {
         isEnabled
     };
 })();
-"""
-
-path = Path("/mnt/data/sounds.js")
-path.write_text(sounds_js, encoding="utf-8")
-print(f"Archivo creado: {path}")
