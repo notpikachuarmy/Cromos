@@ -365,6 +365,10 @@ function calcularClickValue() {
 function calcularProduccionPasivaTotal() {
     let total = 0;
 
+    if (window.Upgrades?.getPassiveFlatBonus) {
+        total += window.Upgrades.getPassiveFlatBonus();
+    }
+
     CONFIG_ALBUMES.forEach(album => {
         const cromosAlbum = getCromosDeAlbum(album.id);
         const claims = gameState.albumPassiveClaims[album.id] || 0;
