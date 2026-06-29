@@ -200,8 +200,3 @@ window.Statistics = (() => {
         formatTime
     };
 })();
-"""
-
-path = Path("/mnt/data/statistics.js")
-path.write_text(statistics_js, encoding="utf-8")
-print(f"Archivo creado: {path}")
