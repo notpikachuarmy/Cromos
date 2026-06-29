@@ -419,8 +419,3 @@ window.Albums = (() => {
         getAlbumProgress
     };
 })();
-"""
-
-path = Path("/mnt/data/albums.js")
-path.write_text(albums_js, encoding="utf-8")
-print(f"Archivo creado: {path}")
