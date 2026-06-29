@@ -2,6 +2,7 @@
    TOTOTO CLICKER 2.0 - SHOP.JS
    Tienda de sobres: compra por monedas, canje por fragmentos,
    tiradas por rareza, duplicados, fragmentos y resultado visual.
+   Incluye apertura múltiple: 1, 5, 10, 100.
    ========================================================= */
 
 window.Shop = (() => {
@@ -30,6 +31,7 @@ window.Shop = (() => {
         const packs = window.Tototo.getShopPacks();
         const state = window.Tototo.getState();
         const packIds = Object.keys(packs);
+        const amount = getOpenAmount();
 
         if (!packIds.length) {
             container.innerHTML = `<div class="empty-state">No hay sobres disponibles.</div>`;
@@ -40,9 +42,11 @@ window.Shop = (() => {
             const pack = packs[packId];
             const tagBase = getTagBase(pack);
             const fragments = state.fragmentos[tagBase] || 0;
-            const canBuy = state.coins >= getPackCost(pack);
-            const canExchange = fragments >= FRAGMENTOS_POR_SOBRE;
             const cost = getPackCost(pack);
+            const totalCost = cost * amount;
+            const totalFragments = FRAGMENTOS_POR_SOBRE * amount;
+            const canBuy = state.coins >= totalCost;
+            const canExchange = fragments >= totalFragments;
 
             return `
                 <article class="shop-card">
@@ -54,27 +58,25 @@ window.Shop = (() => {
 
                     <h3>${window.Tototo.escapeHTML(pack.nombre || pack.id)}</h3>
 
-                    <p>
-                        Coste:
-                        <strong class="money">${window.Tototo.formatNumber(cost)} 🪙</strong>
-                    </p>
+                    <p>Coste por sobre: <strong class="money">${window.Tototo.formatNumber(cost)} 🪙</strong></p>
+                    <p>Coste x${window.Tototo.formatNumber(amount)}: <strong class="money">${window.Tototo.formatNumber(totalCost)} 🪙</strong></p>
 
                     <p>
                         Fragmentos ${window.Tototo.escapeHTML(tagBase)}:
-                        <strong>${window.Tototo.formatNumber(fragments)} / ${FRAGMENTOS_POR_SOBRE}</strong>
+                        <strong>${window.Tototo.formatNumber(fragments)} / ${window.Tototo.formatNumber(totalFragments)}</strong>
                     </p>
 
                     <div class="shop-actions">
                         <button class="card-button full-button"
                                 data-buy-pack="${window.Tototo.escapeHTML(pack.id)}"
                                 ${canBuy ? "" : "disabled"}>
-                            Comprar
+                            Comprar x${window.Tototo.formatNumber(amount)}
                         </button>
 
                         <button class="secondary-button full-button"
                                 data-exchange-pack="${window.Tototo.escapeHTML(pack.id)}"
                                 ${canExchange ? "" : "disabled"}>
-                            Canjear 50 F
+                            Canjear x${window.Tototo.formatNumber(amount)}
                         </button>
                     </div>
                 </article>
@@ -82,6 +84,7 @@ window.Shop = (() => {
         }).join("");
 
         bindShopButtons();
+        bindAmountSelector();
     }
 
     function bindShopButtons() {
@@ -103,19 +106,79 @@ window.Shop = (() => {
             });
         });
     }
-      function getOpenAmount() {
-    const select = document.getElementById("pack-open-amount");
-    const value = Number(select?.value || 1);
 
-    return [1, 5, 10, 100].includes(value) ? value : 1;
-}
+    function bindAmountSelector() {
+        const selector = document.getElementById("pack-open-amount");
+        if (!selector || selector.dataset.boundPackAmount) return;
+
+        selector.dataset.boundPackAmount = "true";
+        selector.addEventListener("change", () => render());
+    }
+
+    function getOpenAmount() {
+        const select = document.getElementById("pack-open-amount");
+        const value = Number(select?.value || 1);
+        return [1, 5, 10, 100].includes(value) ? value : 1;
+    }
+
     function comprarSobre(packId, conFragmentos = false) {
+        const amount = getOpenAmount();
+
+        if (amount === 1) {
+            return comprarUnSobre(packId, conFragmentos, true);
+        }
+
+        let abiertos = 0;
+        let nuevos = 0;
+        let duplicados = 0;
+        let fragmentosTotales = 0;
+
+        const rarezas = { N: 0, R: 0, SR: 0, SSR: 0, UR: 0 };
+
+        for (let i = 0; i < amount; i++) {
+            const resultado = comprarUnSobre(packId, conFragmentos, false);
+
+            if (!resultado) break;
+
+            abiertos++;
+
+            if (resultado.prize?.rareza) {
+                rarezas[resultado.prize.rareza] = (rarezas[resultado.prize.rareza] || 0) + 1;
+            }
+
+            if (resultado.isDuplicate) {
+                duplicados++;
+                fragmentosTotales += resultado.fragmentsEarned || 0;
+            } else {
+                nuevos++;
+            }
+        }
+
+        if (abiertos > 0) {
+            mostrarResumenMultiple({
+                abiertos,
+                nuevos,
+                duplicados,
+                fragmentosTotales,
+                rarezas
+            });
+
+            window.Tototo.toast(`Has abierto ${abiertos} sobres.`, "success");
+            refrescarTrasCompra();
+        }
+
+        return abiertos;
+    }
+
+    function comprarUnSobre(packId, conFragmentos = false, mostrarModal = true) {
         const packs = window.Tototo.getShopPacks();
         const pack = packs[packId];
 
         if (!pack) {
-            window.Tototo.toast("Ese sobre no existe.", "danger");
-            window.Sounds?.play?.("error");
+            if (mostrarModal) {
+                window.Tototo.toast("Ese sobre no existe.", "danger");
+                window.Sounds?.play?.("error");
+            }
             return null;
         }
 
@@ -126,8 +189,10 @@ window.Shop = (() => {
             const fragments = state.fragmentos[tagBase] || 0;
 
             if (fragments < FRAGMENTOS_POR_SOBRE) {
-                window.Tototo.toast(`Necesitas ${FRAGMENTOS_POR_SOBRE} fragmentos ${tagBase}.`, "warning");
-                window.Sounds?.play?.("error");
+                if (mostrarModal) {
+                    window.Tototo.toast(`Necesitas ${FRAGMENTOS_POR_SOBRE} fragmentos ${tagBase}.`, "warning");
+                    window.Sounds?.play?.("error");
+                }
                 return null;
             }
 
@@ -141,8 +206,10 @@ window.Shop = (() => {
             const paid = window.Tototo.spendCoins(cost);
 
             if (!paid) {
-                window.Tototo.toast("No tienes monedas suficientes.", "warning");
-                window.Sounds?.play?.("error");
+                if (mostrarModal) {
+                    window.Tototo.toast("No tienes monedas suficientes.", "warning");
+                    window.Sounds?.play?.("error");
+                }
                 return null;
             }
         }
@@ -150,8 +217,10 @@ window.Shop = (() => {
         const prize = obtenerCromoDeSobre(pack);
 
         if (!prize) {
-            window.Tototo.toast("Este sobre no tiene cromos disponibles. Revisa tags y CSV.", "danger");
-            window.Sounds?.play?.("error");
+            if (mostrarModal) {
+                window.Tototo.toast("Este sobre no tiene cromos disponibles. Revisa tags y CSV.", "danger");
+                window.Sounds?.play?.("error");
+            }
             return null;
         }
 
@@ -164,12 +233,13 @@ window.Shop = (() => {
 
             state.fragmentos[tagDestino] = (state.fragmentos[tagDestino] || 0) + fragmentsEarned;
 
-            window.Tototo.toast(
-                `Duplicado: ${prize.nombre}. +${fragmentsEarned} fragmentos ${tagDestino}.`,
-                "warning"
-            );
-
-            window.Sounds?.play?.("duplicate");
+            if (mostrarModal) {
+                window.Tototo.toast(
+                    `Duplicado: ${prize.nombre}. +${fragmentsEarned} fragmentos ${tagDestino}.`,
+                    "warning"
+                );
+                window.Sounds?.play?.("duplicate");
+            }
 
             if (window.Missions?.onProgress) {
                 window.Missions.onProgress("fragments", fragmentsEarned);
@@ -177,12 +247,16 @@ window.Shop = (() => {
         } else {
             state.inventario.push(prize.id);
 
-            window.Tototo.toast(`Nuevo cromo: ${prize.nombre} (${prize.rareza})`, "success");
+            if (mostrarModal) {
+                window.Tototo.toast(`Nuevo cromo: ${prize.nombre} (${prize.rareza})`, "success");
 
-            if (prize.rareza === "UR") {
+                if (prize.rareza === "UR") {
+                    window.Sounds?.play?.("ur");
+                } else {
+                    window.Sounds?.play?.("newCard");
+                }
+            } else if (prize.rareza === "UR") {
                 window.Sounds?.play?.("ur");
-            } else {
-                window.Sounds?.play?.("newCard");
             }
 
             if (window.Missions?.onProgress) {
@@ -206,16 +280,28 @@ window.Shop = (() => {
             window.Missions.onProgress("packs", 1);
         }
 
-        mostrarResultadoSobre(pack, prize, isDuplicate, fragmentsEarned);
+        if (mostrarModal) {
+            mostrarResultadoSobre(pack, prize, isDuplicate, fragmentsEarned);
+            refrescarTrasCompra();
+        }
 
+        return {
+            prize,
+            isDuplicate,
+            fragmentsEarned
+        };
+    }
+
+    function refrescarTrasCompra() {
         window.Tototo.recalculate();
         window.Tototo.save();
 
         render();
-        window.Tototo.renderBackpack();
 
+        if (window.Tototo.renderBackpack) window.Tototo.renderBackpack();
         if (window.Albums?.render) window.Albums.render();
         if (window.Statistics?.renderIfVisible) window.Statistics.renderIfVisible();
+
         if (window.Albums?.checkAllAlbumCompletionRewards) {
             window.Albums.checkAllAlbumCompletionRewards();
         }
@@ -225,8 +311,54 @@ window.Shop = (() => {
         if (window.Upgrades?.renderSummary) window.Upgrades.renderSummary();
 
         window.Tototo.renderLight();
+    }
 
-        return prize;
+    function mostrarResumenMultiple(data) {
+        const body = document.getElementById("pack-result-body");
+        const title = document.getElementById("pack-result-title");
+
+        if (!body || !title) return;
+
+        title.textContent = "Resumen de apertura";
+
+        body.innerHTML = `
+            <div class="card-detail-grid" style="width:100%">
+                <div class="card-detail-row">
+                    <span>Sobres abiertos</span>
+                    <strong>${window.Tototo.formatNumber(data.abiertos)}</strong>
+                </div>
+                <div class="card-detail-row">
+                    <span>Nuevos cromos</span>
+                    <strong class="success-text">${window.Tototo.formatNumber(data.nuevos)}</strong>
+                </div>
+                <div class="card-detail-row">
+                    <span>Duplicados</span>
+                    <strong>${window.Tototo.formatNumber(data.duplicados)}</strong>
+                </div>
+                <div class="card-detail-row">
+                    <span>Fragmentos obtenidos</span>
+                    <strong class="money">+${window.Tototo.formatNumber(data.fragmentosTotales)}</strong>
+                </div>
+            </div>
+
+            <div class="modal-stats" style="justify-content:center">
+                ${Object.entries(data.rarezas).map(([rareza, cantidad]) => `
+                    <span class="stat-pill rarity-${window.Tototo.escapeHTML(rareza)}">
+                        ${window.Tototo.escapeHTML(rareza)}: ${window.Tototo.formatNumber(cantidad)}
+                    </span>
+                `).join("")}
+            </div>
+
+            <button class="secondary-button" type="button" data-result-close>
+                Cerrar
+            </button>
+        `;
+
+        body.querySelector("[data-result-close]")?.addEventListener("click", () => {
+            window.Tototo.closeModals();
+        });
+
+        window.Tototo.openModal("pack-result-modal");
     }
 
     function obtenerCromoDeSobre(pack) {
