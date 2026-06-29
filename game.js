@@ -878,8 +878,4 @@ window.Tototo = {
     randomFrom: elegirAleatorio,
     nowISO: ahoraISO
 };
-"""
-
-path = Path("/mnt/data/game.js")
-path.write_text(js, encoding="utf-8")
-print(f"Archivo creado: {path}")
+})();
