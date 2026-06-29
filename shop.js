@@ -103,7 +103,12 @@ window.Shop = (() => {
             });
         });
     }
+      function getOpenAmount() {
+    const select = document.getElementById("pack-open-amount");
+    const value = Number(select?.value || 1);
 
+    return [1, 5, 10, 100].includes(value) ? value : 1;
+}
     function comprarSobre(packId, conFragmentos = false) {
         const packs = window.Tototo.getShopPacks();
         const pack = packs[packId];
