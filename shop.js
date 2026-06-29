@@ -390,8 +390,3 @@ window.Shop = (() => {
         DUPLICATE_FRAGMENT_VALUES
     };
 })();
-"""
-
-path = Path("/mnt/data/shop.js")
-path.write_text(shop_js, encoding="utf-8")
-print(f"Archivo creado: {path}")
