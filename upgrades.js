@@ -74,7 +74,7 @@ window.Upgrades = (() => {
             type: "level",
             title: "Imán de SR",
             description: level => `Mejora ligeramente la probabilidad de SR. Nivel actual: ${level}.`,
-            maxLevel: 10,
+            maxLevel: 20,
             baseCost: 900,
             costMultiplier: 1.7,
             category: "Suerte"
@@ -84,7 +84,7 @@ window.Upgrades = (() => {
             type: "level",
             title: "Imán de SSR",
             description: level => `Mejora ligeramente la probabilidad de SSR. Nivel actual: ${level}.`,
-            maxLevel: 8,
+            maxLevel: 40,
             baseCost: 1800,
             costMultiplier: 1.85,
             category: "Suerte"
@@ -94,7 +94,7 @@ window.Upgrades = (() => {
             type: "level",
             title: "Imán de UR",
             description: level => `Mejora muy ligeramente la probabilidad de UR. Nivel actual: ${level}.`,
-            maxLevel: 5,
+            maxLevel: 50,
             baseCost: 5000,
             costMultiplier: 2.1,
             category: "Suerte"
